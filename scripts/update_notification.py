@@ -3,15 +3,13 @@ from email.mime.text import MIMEText
 import os
 import smtplib
 import sqlite3
-import sys
 from dotenv import load_dotenv, find_dotenv
 
 # define constants
 load_dotenv(find_dotenv())
-ARGS =  sys.argv
-DB_PATH = ARGS[1]
-TO_MAIL_ADDRESS = ARGS[2]
-PROCESS_NAME = ARGS[3]
+DB_PATH = os.getenv("DB_PATH")
+TO_MAIL_ADDRESS = os.getenv("TO_MAIL_ADDRESS")
+PROCESS_NAME = os.getenv("PROCESS_NAME")
 SMTP_SERVER = os.getenv("SMTP_SERVER")
 SMTP_PORT = os.getenv("SMTP_PORT")
 FROM_MAIL_ADDRESS = os.getenv("FROM_MAIL_ADDRESS")
