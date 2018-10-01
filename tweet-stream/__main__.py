@@ -3,7 +3,6 @@ import datetime
 from twitter import Api, TwitterError
 from dotenv import load_dotenv, find_dotenv
 from sqlite3 import IntegrityError
-from tep.accountCollector import AccountCollector
 from .database import create_connection, create_tweets_table, create_retweets_table, create_quotes_table, create_replies_table
 from .processing import TweetProcessor
 from .models import StreamError
@@ -16,6 +15,32 @@ ACCESS_TOKEN_KEY = os.getenv("TWITTER_ACCESS_TOKEN_KEY")
 ACCESS_TOKEN_SECRET = os.getenv("TWITTER_ACCESS_TOKEN_SECRET")
 USER_GROUP_PATH = os.getenv("USER_GROUP_PATH") or "data/user_ids.txt"
 DB_PATH = os.getenv("DB_PATH") or "tweets.db"
+
+# define helper functions
+def load_users_from_file(fname):
+    """
+    Load user screen names from file with the given name and get account
+    data via the API.
+    """
+    user_ids = []
+    with open(fname) as f:
+        for user_id in f:
+            user_ids.append(int(user_id.strip()))
+    return user_ids
+
+def handle(tweet):
+    if 'user' not in tweet:
+        return
+    user_id = tweet['user']['id']
+    if user_id in users:
+        proc.process_tweet(tweet)
+    else:
+        proc.process_engagement(tweet)
+
+def handle_error(err_type, msg, tweet):
+    tid = (tweet['id'] if ('id' in tweet) else None)
+    err = StreamError(err_type, datetime.datetime.now(), msg, tid)
+    print(err)
 
 # setup API connection
 api = Api(CONSUMER_KEY,
@@ -35,24 +60,8 @@ create_replies_table(conn)
 proc = TweetProcessor(conn)
 
 # get user ids
-ac = AccountCollector()
-users = ac.load_user_ids(fname=USER_GROUP_PATH)
+users = load_users_from_file(fname=USER_GROUP_PATH)
 users_str = [str(u) for u in users]
-
-def handle(tweet):
-    if 'user' not in tweet:
-        return
-    user_id = tweet['user']['id']
-    if user_id in users:
-        proc.process_tweet(tweet)
-    else:
-        proc.process_engagement(tweet)
-
-def handle_error(err_type, msg, tweet):
-    tid = (tweet['id'] if ('id' in tweet) else None)
-    err = StreamError(err_type, datetime.datetime.now(), msg, tid)
-    print(err)
-
 
 # run stream
 def main():
