@@ -71,11 +71,11 @@ context of a cron job.
 ## Roadmap
 
 The following extensions should be implemented for more well-rounded functionality:
-[ ] Provide more flexible interface to module
-[ ] Enable topic tracking, e.g., via hashtags or search strings
-[ ] Add more information to update notifications
-[ ] Create Docker runtime environment
-[ ] Register module with *pip* and *conda*
+- [ ] Provide more flexible interface to module
+- [ ] Enable topic tracking, e.g., via hashtags or search strings
+- [ ] Add more information to update notifications
+- [ ] Create Docker runtime environment
+- [ ] Register module with *pip* and *conda*
 
 ## Contact
 
